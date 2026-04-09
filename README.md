@@ -23,6 +23,7 @@ It is intentionally framed as a **cost-aware decision system** (not only forecas
   - stockout penalty for unmet demand,
   - spoilage cost on a fraction of surplus.
 - Synthetic datasets are realistic but simulated; no external source systems required.
+- Feature builders only expose lagged/rolling predictors and remove contemporaneous raw signals so model training cannot accidentally use week-*t* values when predicting week *t+26*.
 
 ## Project structure
 

@@ -28,25 +28,35 @@ def build_demand_features_asof(sales_df: pd.DataFrame, horizon_weeks: int = 26) 
     Target is demand at t + horizon_weeks.
     """
     df = sales_df.sort_values("week_start").reset_index(drop=True)
-    df = _asof_lagged_feature(df, ["demand_kg"], lags=[1, 2, 4, 8, 13], rolling_windows=[4, 8, 13])
+    lag_cols = ["demand_kg", "promo_intensity", "competitor_price_index", "holiday_flag", "avg_temp_c"]
+    df = _asof_lagged_feature(df, lag_cols, lags=[1, 2, 4, 8, 13], rolling_windows=[4, 8, 13])
     df["week_of_year"] = df["week_start"].dt.isocalendar().week.astype(int)
     df["sin_woy"] = np.sin(2 * np.pi * df["week_of_year"] / 52)
     df["cos_woy"] = np.cos(2 * np.pi * df["week_of_year"] / 52)
 
     df["target_demand_kg"] = df["demand_kg"].shift(-horizon_weeks)
-    return df
+    return df.drop(columns=lag_cols)
 
 
 def build_yield_features_asof(yield_df: pd.DataFrame, horizon_weeks: int = 26) -> pd.DataFrame:
     """Leakage-safe yield features for forecasting future conversion efficiency."""
     df = yield_df.sort_values("week_start").reset_index(drop=True)
-    df = _asof_lagged_feature(df, ["yield_rate", "fat_pct", "protein_pct"], lags=[1, 2, 4, 8], rolling_windows=[4, 8, 13])
+    lag_cols = [
+        "yield_rate",
+        "fat_pct",
+        "protein_pct",
+        "somatic_cell_count",
+        "pasture_quality_index",
+        "milk_collected_liters",
+        "cheese_output_kg",
+    ]
+    df = _asof_lagged_feature(df, lag_cols, lags=[1, 2, 4, 8], rolling_windows=[4, 8, 13])
     df["week_of_year"] = df["week_start"].dt.isocalendar().week.astype(int)
     df["sin_woy"] = np.sin(2 * np.pi * df["week_of_year"] / 52)
     df["cos_woy"] = np.cos(2 * np.pi * df["week_of_year"] / 52)
 
     df["target_yield_rate"] = df["yield_rate"].shift(-horizon_weeks)
-    return df
+    return df.drop(columns=lag_cols)
 
 
 def model_matrix(df: pd.DataFrame, target_col: str) -> tuple[pd.DataFrame, pd.Series]:

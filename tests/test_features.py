@@ -19,5 +19,10 @@ def test_demand_features_are_lagged_and_target_shifted():
 
     # For row index 10, lag_1 should reference demand at row 9, not current row 10.
     assert out.loc[10, "demand_kg_lag_1"] == 9
+    # Demand drivers should also be lagged to keep strict as-of behavior.
+    assert out.loc[10, "competitor_price_index_lag_1"] == 1.0
     # Target should be horizon weeks ahead.
     assert out.loc[10, "target_demand_kg"] == 14
+    # Raw current-week columns are dropped to avoid accidental leakage.
+    assert "demand_kg" not in out.columns
+    assert "promo_intensity" not in out.columns
