@@ -1,0 +1,9 @@
+[
+  {
+    "milk_cost_per_liter": 0.63,
+    "holding_cost_per_kg": 0.18,
+    "stockout_cost_per_kg": 2.4,
+    "spoilage_cost_per_kg": 0.55,
+    "spoilage_rate": 0.2
+  }
+]
